@@ -1,10 +1,10 @@
 # ==============================================================================
-# APLIKASI DASHBOARD R SHINY: EKSPLORASI & ANALISIS DATA MULTIVARIAT (EVDM)
+# APLIKASI R SHINY: MODERN ANALYTICS DASHBOARD - PRODUCTIVITY PREDICTION
 # Judul Penelitian: Analisis Faktor-faktor yang Berhubungan dengan Produktivitas 
 #                   Pekerja pada Industri Garmen
+# Konsep Desain: Modern Analytics Dashboard – Premium Data Intelligence
 # ==============================================================================
 
-# Memuat library yang dibutuhkan
 library(shiny)
 library(bslib)
 library(bsicons)
@@ -21,17 +21,19 @@ library(lmtest)
 library(car)
 
 # ==============================================================================
-# 1. KONFIGURASI TEMA KUSTOM DASHBOARD (UI STYLING)
+# 1. KONFIGURASI TEMA KUSTOM DASHBOARD (PREMIUM DATA INTELLIGENCE)
 # ==============================================================================
 custom_theme <- bs_theme(
   version = 5,
   bootswatch = "flatly",
-  primary = "#1B2A4A",      # Deep Navy Blue
-  secondary = "#008080",    # Teal
+  primary = "#142B3B",      # Deep Navy
+  secondary = "#168C8C",    # Teal
   success = "#2E8B57",      # Sea Green
   info = "#4682B4",         # Steel Blue
-  warning = "#D4AF37",      # Gold
-  danger = "#CD5C5C",       # Indian Red
+  warning = "#E9B44C",      # Gold
+  danger = "#E87968",       # Coral
+  bg = "#F4F7FA",           # Soft Background
+  fg = "#253746",           # Text Dark
   base_font = font_google("Inter"),
   heading_font = font_google("Poppins")
 )
@@ -120,66 +122,70 @@ calc_numeric_stats <- function(vec) {
 # 3. USER INTERFACE (UI) APLIKASI SHINY
 # ==============================================================================
 ui <- page_navbar(
-  title = "Analisis Faktor-faktor yang Berhubungan dengan Produktivitas Pekerja pada Industri Garmen",
+  title = div(
+    style = "display: flex; align-items: center; gap: 10px;",
+    bs_icon("bar-chart-fill", size = "1.3rem", style = "color: #168C8C;"),
+    span("Garment Productivity Intelligence", style = "font-weight: 600; font-size: 1.15rem; color: #142B3B;")
+  ),
   theme = custom_theme,
   fillable = FALSE,
   
-  # Sidebar Global untuk Pengaturan & Unggah File Opsional
+  # Sidebar Global untuk Pengaturan & Unggah File
   sidebar = sidebar(
-    width = 300,
-    title = "Pengaturan Data",
-    fileInput("file_input", "Unggah Dataset Lain (.xlsx / .csv)", accept = c(".csv", ".xls", ".xlsx")),
+    width = 310,
+    bg = "#FFFFFF",
+    title = div(style = "color: #142B3B; font-weight: 700;", "Panel Kontrol Data"),
+    fileInput("file_input", "Unggah Dataset (.xlsx / .csv)", accept = c(".csv", ".xls", ".xlsx")),
     uiOutput("sheet_selector_ui"),
     hr(),
     checkboxInput("impute_wip", "Imputasi NA pada 'wip' dengan 0 (Finishing)", value = TRUE),
     hr(),
-    helpText(strong("Mata Kuliah:"), " Eksplorasi & Visualisasi Data Multivariat"),
-    helpText(strong("Dosen Pengampu:"), " Inggit Fatika, S.Stat., M.Stat.")
+    div(
+      style = "font-size: 0.85rem; color: #718096;",
+      p(strong("Mata Kuliah:"), " Eksplorasi & Visualisasi Data Multivariat"),
+      p(strong("Dosen Pengampu:"), " Inggit Fatika, S.Stat., M.Stat.")
+    )
   ),
   
   # --------------------------------------------------------------------------
-  # TAB 1: BERANDA / LATAR BELAKANG & TUJUAN ANALISIS
+  # TAB 1: RINGKASAN DASHBOARD
   # --------------------------------------------------------------------------
   nav_panel(
-    "Beranda",
-    icon = bs_icon("house-door-fill"),
+    "Ringkasan Dashboard",
+    icon = bs_icon("speedometer2"),
+    div(
+      style = "margin-bottom: 20px;",
+      h3("Dashboard Overview & Eksekutif Ringkasan", style = "color: #142B3B; font-weight: 700;"),
+      p("Sistem analitik interaktif untuk eksplorasi, visualisasi, dan pemodelan regresi data produktivitas pekerja industri garmen secara komprehensif.", style = "color: #718096;")
+    ),
     layout_columns(
       fill = FALSE,
       value_box(title = "Total Observasi (n)", value = textOutput("vb_obs"), showcase = bs_icon("people-fill"), theme = "primary"),
       value_box(title = "Total Variabel (p)", value = textOutput("vb_vars"), showcase = bs_icon("columns"), theme = "secondary"),
-      value_box(title = "Variabel Kategorik", value = textOutput("vb_cat"), showcase = bs_icon("tags-fill"), theme = "info"),
-      value_box(title = "Variabel Numerik", value = textOutput("vb_num"), showcase = bs_icon("123"), theme = "warning"),
-      value_box(title = "% Missing Values", value = textOutput("vb_missing"), showcase = bs_icon("exclamation-triangle-fill"), theme = "danger")
+      value_box(title = "Rata-rata Produktivitas", value = textOutput("vb_mean_prod"), showcase = bs_icon("graph-up-arrow"), theme = "success"),
+      value_box(title = "% Missing Values", value = textOutput("vb_missing"), showcase = bs_icon("exclamation-triangle-fill"), theme = "warning")
     ),
     layout_columns(
       col_widths = c(6, 6),
       card(
         card_header(class = "bg-primary text-white", "Latar Belakang & Permasalahan Penelitian"),
         p(strong("Topik Penelitian:"), " Analisis faktor-faktor yang berhubungan dengan produktivitas pekerja pada industri garmen."),
-        p(strong("Latar Belakang:"), " Produktivitas pekerja merupakan salah satu aspek penting dalam kegiatan produksi industri garmen. Tingkat produktivitas dapat berbeda antara satu kelompok pekerja dengan kelompok lainnya. Perbedaan tersebut dapat berkaitan dengan kondisi pekerjaan, seperti jumlah pekerja dalam satu tim, waktu lembur, pemberian insentif, standar waktu pengerjaan, serta bagian produksi tempat pekerja ditempatkan."),
-        p(strong("Rumusan Permasalahan:"), " Apakah faktor-faktor pekerjaan tersebut memiliki hubungan atau pengaruh statistik terhadap produktivitas aktual pekerja? Analisis ini dilakukan menggunakan data produktivitas karyawan industri garmen sehingga dapat diketahui faktor mana yang memiliki hubungan paling kuat dengan produktivitas.")
+        p(strong("Latar Belakang:"), " Produktivitas pekerja merupakan salah satu aspek penting dalam kegiatan produksi industri garmen. Tingkat produktivitas dapat berbeda antar kelompok pekerja yang dipengaruhi oleh kondisi pekerjaan seperti jumlah pekerja dalam tim, waktu lembur, insentif, waktu standar pengerjaan (SMV), dan departemen penempatan."),
+        p(strong("Rumusan Masalah:"), " Apakah faktor-faktor pekerjaan tersebut memiliki hubungan atau pengaruh signifikan secara statistik terhadap produktivitas aktual pekerja di lantai produksi?")
       ),
       card(
-        card_header(class = "bg-secondary text-white", "Tujuan Analisis & Sumber Data"),
-        p(strong("Tujuan Analisis:"),
-          tags$ol(
-            tags$li("Mengetahui karakteristik data produktivitas pekerja melalui statistik deskriptif."),
-            tags$li("Mengeksplorasi pola hubungan antara produktivitas aktual dan faktor-faktor pekerjaan."),
-            tags$li("Mengetahui hubungan antara variabel numerik dan kategorik dengan produktivitas pekerja."),
-            tags$li("Membangun model regresi linear berganda beserta uji asumsi klasik lengkap."),
-            tags$li("Mengidentifikasi variabel yang berhubungan secara signifikan dengan produktivitas pekerja.")
-          )
-        ),
-        p(strong("Sumber Data:"), " Dataset Produktivitas Pekerja Garmen (Garments Worker Productivity Dataset) dengan ukuran sampel n = 1.197 dan p = 15 variabel.")
+        card_header(class = "bg-secondary text-white", "Distribusi & Ringkasan Produktivitas Aktual"),
+        plotOutput("overview_prod_plot", height = "220px"),
+        div(style = "font-size: 0.85rem; color: #718096; margin-top: 5px;", "Grafik sebaran tingkat pencapaian produktivitas aktual (0 hingga 1) dari seluruh observasi.")
       )
     )
   ),
   
   # --------------------------------------------------------------------------
-  # TAB 2: DATA EXPLORER & DEFINISI 15 VARIABEL
+  # TAB 2: DATA DAN KUALITAS DATA
   # --------------------------------------------------------------------------
   nav_panel(
-    "Data Explorer",
+    "Data & Kualitas Data",
     icon = bs_icon("table"),
     layout_columns(
       fill = FALSE,
@@ -188,19 +194,22 @@ ui <- page_navbar(
     ),
     card(
       card_header("Definisi Operasional 15 Variabel Dataset"),
-      p("Berikut adalah rincian definisi operasional dan klasifikasi dari 15 variabel yang dianalisis:"),
+      p("Berikut adalah rincian definisi operasional dan klasifikasi skala pengukuran dari 15 variabel dalam dataset:"),
       tableOutput("variable_definition_table")
     ),
     hr(),
     card(
-      card_header("Struktur Data R (str) & Tabel Interaktif Dataset"),
+      card_header("Struktur Data R (str) & Ringkasan Kualitas Data"),
       layout_columns(
-        col_widths = c(4, 8),
+        col_widths = c(5, 7),
         card(card_header("Struktur Data R"), verbatimTextOutput("data_structure_text")),
-        card(card_header("Ringkasan Missing Values"), tableOutput("missing_summary_table"))
+        card(card_header("Tabel Ringkasan Missing Values per Variabel"), tableOutput("missing_summary_table"))
       ),
       hr(),
-      DTOutput("raw_data_table")
+      card(
+        card_header("Tabel Interaktif Dataset (Dapat Difilter & Diurutkan)"),
+        DTOutput("raw_data_table")
+      )
     )
   ),
   
@@ -208,7 +217,7 @@ ui <- page_navbar(
   # TAB 3: ANALISIS UNIVARIAT
   # --------------------------------------------------------------------------
   nav_panel(
-    "Univariat",
+    "Analisis Univariat",
     icon = bs_icon("graph-up"),
     navset_card_tab(
       nav_panel(
@@ -225,7 +234,7 @@ ui <- page_navbar(
                                     "Pareto Chart" = "pareto",
                                     "Pie / Donut Chart" = "pie")),
             checkboxInput("cat_sort_freq", "Urutkan Kategori berdasarkan Frekuensi", TRUE),
-            downloadButton("download_cat_plot", "Unduh Grafik (PNG)")
+            downloadButton("download_cat_plot", "Unduh Grafik (PNG)", class = "btn-outline-primary btn-sm mt-2")
           ),
           card(
             card_header("Tabel Distribusi Frekuensi & Proporsi"),
@@ -238,8 +247,7 @@ ui <- page_navbar(
           card_header("Visualisasi Data Kategorik"),
           plotOutput("cat_plot", height = "420px"),
           hr(),
-          card_header(class = "bg-light", "Interpretasi Visual"),
-          uiOutput("cat_plot_interpretation")
+          card(card_header(class = "bg-light", "Interpretasi Visual"), uiOutput("cat_plot_interpretation"))
         )
       ),
       nav_panel(
@@ -257,9 +265,9 @@ ui <- page_navbar(
                                     "Violin Plot" = "violin",
                                     "ECDF (Distribusi Kumulatif)" = "ecdf")),
             sliderInput("num_bins", "Jumlah Bin (Histogram):", min = 5, max = 50, value = 20),
-            checkboxInput("show_mean_line", "Tampilkan Garis Mean (Merah)", TRUE),
-            checkboxInput("show_median_line", "Tampilkan Garis Median (Biru)", TRUE),
-            downloadButton("download_num_plot", "Unduh Grafik (PNG)")
+            checkboxInput("show_mean_line", "Tampilkan Garis Mean (Coral)", TRUE),
+            checkboxInput("show_median_line", "Tampilkan Garis Median (Teal)", TRUE),
+            downloadButton("download_num_plot", "Unduh Grafik (PNG)", class = "btn-outline-primary btn-sm mt-2")
           ),
           card(
             card_header("Statistik Deskriptif Lengkap"),
@@ -272,8 +280,7 @@ ui <- page_navbar(
           card_header("Visualisasi Data Numerik"),
           plotOutput("num_plot", height = "420px"),
           hr(),
-          card_header(class = "bg-light", "Interpretasi Visual"),
-          uiOutput("num_plot_interpretation")
+          card(card_header(class = "bg-light", "Interpretasi Visual"), uiOutput("num_plot_interpretation"))
         )
       )
     )
@@ -283,7 +290,7 @@ ui <- page_navbar(
   # TAB 4: ANALISIS BIVARIAT
   # --------------------------------------------------------------------------
   nav_panel(
-    "Bivariat",
+    "Analisis Bivariat",
     icon = bs_icon("diagram-3-fill"),
     card(
       card_header("Pemilihan Pasangan Variabel (Deteksi Tipe Otomatis)"),
@@ -303,13 +310,12 @@ ui <- page_navbar(
         card(card_header(class = "bg-light", "Interpretasi Otomatis Bivariat"), uiOutput("biv_interpretation_text"))
       ),
       card(
-        card_header("Visualisasi Bivariat"),
+        card_header("Visualisasi Bivariat Interaktif"),
         uiOutput("biv_plot_selector_ui"),
         plotOutput("biv_plot", height = "450px"),
-        downloadButton("download_biv_plot", "Unduh Grafik (PNG)"),
+        downloadButton("download_biv_plot", "Unduh Grafik (PNG)", class = "btn-outline-primary btn-sm mt-2"),
         hr(),
-        card_header(class = "bg-light", "Interpretasi Visual Bivariat"),
-        uiOutput("biv_plot_interpretation")
+        card(card_header(class = "bg-light", "Interpretasi Visual Bivariat"), uiOutput("biv_plot_interpretation"))
       )
     )
   ),
@@ -318,7 +324,7 @@ ui <- page_navbar(
   # TAB 5: ANALISIS MULTIVARIAT & OUTLIER MAHALANOBIS
   # --------------------------------------------------------------------------
   nav_panel(
-    "Multivariat",
+    "Analisis Multivariat",
     icon = bs_icon("grid-3x3-gap-fill"),
     navset_card_tab(
       nav_panel(
@@ -358,14 +364,13 @@ ui <- page_navbar(
                                     "Multivariate Bubble Plot (4 Dimensi)" = "bubble",
                                     "Grouped Boxplot Multivariat" = "group_box")),
             uiOutput("multi_vis_controls_ui"),
-            downloadButton("download_multi_plot", "Unduh Grafik (PNG)")
+            downloadButton("download_multi_plot", "Unduh Grafik (PNG)", class = "btn-outline-primary btn-sm mt-2")
           ),
           card(
             card_header("Hasil Visualisasi Multivariat"),
             plotOutput("multi_vis_plot", height = "520px"),
             hr(),
-            card_header(class = "bg-light", "Interpretasi Pola Multivariat"),
-            uiOutput("multi_vis_interpret")
+            card(card_header(class = "bg-light", "Interpretasi Pola Multivariat"), uiOutput("multi_vis_interpret"))
           )
         )
       )
@@ -373,10 +378,10 @@ ui <- page_navbar(
   ),
   
   # --------------------------------------------------------------------------
-  # TAB 6: ANALISIS REGRESI BERGANDA & UJI ASUMSI KLASIK LENGKAP (4 UJI)
+  # TAB 6: REGRESI LINEAR BERGANDA & UJI ASUMSI KLASIK
   # --------------------------------------------------------------------------
   nav_panel(
-    "Regresi & Uji Asumsi",
+    "Regresi Linear Berganda",
     icon = bs_icon("sliders"),
     navset_card_tab(
       nav_panel(
@@ -388,7 +393,7 @@ ui <- page_navbar(
             selectInput("reg_y", "Variabel Respons (Y - Numerik):", choices = NULL),
             checkboxGroupInput("reg_x", "Variabel Prediktor (X - Minimal 2):", choices = NULL),
             textInput("model_label", "Nama Label Model:", value = "Model Garmen Utama"),
-            actionButton("save_model_btn", "Simpan Model untuk Perbandingan", class = "btn-primary")
+            actionButton("save_model_btn", "Simpan Model untuk Perbandingan", class = "btn-primary w-100 mt-2")
           ),
           card(
             card_header("Persamaan Regresi & Ringkasan Model"),
@@ -413,7 +418,7 @@ ui <- page_navbar(
             ),
             card(
               card_header("2. Uji Normalitas Residual"),
-              p("Menguji apakah galat berdistribusi normal (Shapiro-Wilk & Q-Q Plot)."),
+              p("Menguji apakah galat berdistribusi normal (Shapiro-Wilk Test)."),
               verbatimTextOutput("normality_test_output")
             )
           ),
@@ -445,7 +450,7 @@ ui <- page_navbar(
                                     "Normal Q-Q Plot Residual" = "qq",
                                     "Distribusi Residual (Histogram)" = "res_hist",
                                     "Interval Kepercayaan Koefisien (95%)" = "coef_ci")),
-            downloadButton("download_reg_plot", "Unduh Grafik (PNG)")
+            downloadButton("download_reg_plot", "Unduh Grafik (PNG)", class = "btn-outline-primary btn-sm mt-2")
           ),
           card(
             card_header("Grafik Diagnostik Regresi"),
@@ -456,28 +461,25 @@ ui <- page_navbar(
         card(
           card_header("Tabel Perbandingan Antar Model yang Disimpan"),
           tableOutput("model_comparison_table"),
-          actionButton("clear_models_btn", "Hapus Riwayat Perbandingan", class = "btn-outline-danger btn-sm")
+          actionButton("clear_models_btn", "Hapus Riwayat Perbandingan", class = "btn-outline-danger btn-sm mt-2")
         )
       )
     )
   ),
   
   # --------------------------------------------------------------------------
-  # TAB 7: KESIMPULAN PENELITIAN
+  # TAB 7: KESIMPULAN OTOMATIS BERBASIS OUTPUT ANALISIS
   # --------------------------------------------------------------------------
   nav_panel(
     "Kesimpulan",
     icon = bs_icon("check-circle-fill"),
     card(
-      card_header(class = "bg-primary text-white", "Kesimpulan Analisis Penelitian"),
+      card_header(class = "bg-primary text-white", "Kesimpulan Otomatis Berdasarkan Output Analisis Dashboard"),
       h4("Analisis Faktor-faktor yang Berhubungan dengan Produktivitas Pekerja pada Industri Garmen"),
       br(),
-      tags$ul(
-        tags$li(strong("Karakteristik Data Univariat:"), " Berdasarkan analisis deskriptif terhadap 1.197 observasi, variabel operasional seperti waktu lembur (", code("over_time"), "), pemberian insentif (", code("incentive"), "), dan waktu standar pengerjaan (", code("smv"), ") memiliki keragaman yang signifikan di lantai produksi garmen."),
-        tags$li(strong("Eksplorasi Bivariat:"), " Analisis bivariat membuktikan bahwa produktivitas aktual (", code("actual_productivity"), ") bervariasi antar departemen (sewing vs. finishing) serta menunjukkan hubungan linier positif yang nyata antara besaran insentif finansial dan tingkat pencapaian target produksi pekerja."),
-        tags$li(strong("Analisis Multivariat & Mahalanobis:"), " Melalui pendekatan jarak multivariat Mahalanobis (", code("D^2"), "), identifikasi pencilan (*multivariate outliers*) berhasil mendeteksi observasi ekstrem secara presisi tanpa merusak struktur kovariansi antar variabel numerik."),
-        tags$li(strong("Regresi Linear Berganda & Uji Asumsi Klasik:"), " Model OLS yang dibangun telah melalui seluruh serangkaian uji asumsi klasik, yaitu: (1) Uji Multikolinearitas (VIF < 10), (2) Uji Normalitas Residual (Shapiro-Wilk), (3) Uji Homoskedastisitas (Breusch-Pagan), dan (4) Uji Independensi/Autokorelasi (Durbin-Watson). Hasil estimasi membuktikan bahwa variabel prediktor secara simultan dan parsial memberikan pengaruh dan hubungan yang signifikan terhadap produktivitas aktual pekerja garmen.")
-      )
+      uiOutput("dynamic_conclusion_text"),
+      hr(),
+      p(class = "text-muted", "Catatan: Kesimpulan di atas dihasilkan secara otomatis dan sinkron secara real-time dengan data, uji statistik, serta model regresi aktif di dalam dashboard.")
     )
   )
 )
@@ -567,11 +569,17 @@ server <- function(input, output, session) {
     updateCheckboxGroupInput(session, "reg_x", choices = n_vars, selected = default_reg_x)
   })
   
-  # Value boxes & Data Explorer
+  # KPI Overview & Ringkasan
   output$vb_obs <- renderText({ format(nrow(active_data()), big.mark = ",") })
   output$vb_vars <- renderText({ ncol(active_data()) })
-  output$vb_cat <- renderText({ length(cat_vars()) })
-  output$vb_num <- renderText({ length(num_vars()) })
+  output$vb_mean_prod <- renderText({
+    df <- active_data()
+    if ("actual_productivity" %in% names(df)) {
+      paste0(round(mean(df$actual_productivity, na.rm = TRUE) * 100, 1), "%")
+    } else {
+      "N/A"
+    }
+  })
   output$vb_missing <- renderText({
     df <- active_data()
     pct <- (sum(is.na(df)) / (nrow(df) * ncol(df))) * 100
@@ -579,6 +587,19 @@ server <- function(input, output, session) {
   })
   output$vb_duplicates <- renderText({ sum(duplicated(active_data())) })
   output$vb_na_cells <- renderText({ sum(is.na(active_data())) })
+  
+  output$overview_prod_plot <- renderPlot({
+    df <- active_data()
+    if ("actual_productivity" %in% names(df)) {
+      ggplot(df, aes(x = actual_productivity)) +
+        geom_density(fill = "#168C8C", alpha = 0.6, color = "#142B3B", linewidth = 1) +
+        labs(title = NULL, x = "Produktivitas Aktual", y = "Densitas") +
+        theme_minimal()
+    } else {
+      plot.new()
+      text(0.5, 0.5, "Variabel actual_productivity tidak ditemukan")
+    }
+  })
   
   # Tabel Definisi 15 Variabel
   output$variable_definition_table <- renderTable({
@@ -634,7 +655,7 @@ server <- function(input, output, session) {
     tb <- res$df_table
     top_cat <- tb$Kategori[which.max(tb$Frekuensi)]
     top_pct <- round(max(tb$Persentase), 2)
-    HTML(paste0("<p>Kategori dominan untuk <b>", input$cat_var_select, "</b> adalah <b>", top_cat, "</b> sebesar <b>", top_pct, "%</b>.</p>"))
+    HTML(paste0("<p>Kategori dominan untuk <b>", input$cat_var_select, "</b> adalah <b>", top_cat, "</b> sebesar <b>", top_pct, "%</b> dari total data valid.</p>"))
   })
   
   get_cat_plot_obj <- reactive({
@@ -643,20 +664,20 @@ server <- function(input, output, session) {
     p_type <- input$cat_plot_type
     tb$Kategori <- factor(tb$Kategori, levels = tb$Kategori)
     if (p_type == "bar_freq") {
-      ggplot(tb, aes(x = Kategori, y = Frekuensi, fill = Kategori)) + geom_col(show.legend = FALSE) + geom_text(aes(label = Frekuensi), vjust = -0.4) + theme_minimal()
+      ggplot(tb, aes(x = Kategori, y = Frekuensi, fill = Kategori)) + geom_col(show.legend = FALSE, fill = "#168C8C") + geom_text(aes(label = Frekuensi), vjust = -0.4) + theme_minimal()
     } else if (p_type == "bar_pct") {
-      ggplot(tb, aes(x = Kategori, y = Persentase, fill = Kategori)) + geom_col(show.legend = FALSE) + geom_text(aes(label = paste0(round(Persentase, 1), "%")), vjust = -0.4) + theme_minimal()
+      ggplot(tb, aes(x = Kategori, y = Persentase, fill = Kategori)) + geom_col(show.legend = FALSE, fill = "#142B3B") + geom_text(aes(label = paste0(round(Persentase, 1), "%")), vjust = -0.4) + theme_minimal()
     } else if (p_type == "hbar") {
-      ggplot(tb, aes(x = reorder(Kategori, Frekuensi), y = Frekuensi, fill = Kategori)) + geom_col(show.legend = FALSE) + coord_flip() + theme_minimal()
+      ggplot(tb, aes(x = reorder(Kategori, Frekuensi), y = Frekuensi)) + geom_col(show.legend = FALSE, fill = "#168C8C") + coord_flip() + theme_minimal()
     } else if (p_type == "pareto") {
-      ggplot(tb, aes(x = Kategori)) + geom_col(aes(y = Frekuensi, fill = Kategori), show.legend = FALSE) + geom_path(aes(y = Kumulatif_Pct * max(Frekuensi)/100, group = 1), color = "#CD5C5C", linewidth = 1.2) + theme_minimal()
+      ggplot(tb, aes(x = Kategori)) + geom_col(aes(y = Frekuensi), fill = "#142B3B", show.legend = FALSE) + geom_path(aes(y = Kumulatif_Pct * max(Frekuensi)/100, group = 1), color = "#E87968", linewidth = 1.2) + theme_minimal()
     } else {
       ggplot(tb, aes(x = "", y = Persentase, fill = Kategori)) + geom_bar(stat = "identity", width = 1, color = "white") + coord_polar("y", start = 0) + theme_void()
     }
   })
   
   output$cat_plot <- renderPlot({ get_cat_plot_obj() })
-  output$cat_plot_interpretation <- renderUI({ HTML("Visualisasi menyajikan perbandingan frekuensi dan proporsi antar kategori.") })
+  output$cat_plot_interpretation <- renderUI({ HTML("Visualisasi menyajikan perbandingan frekuensi dan proporsi antar kategori secara proporsional.") })
   
   # Univariat Numerik
   num_stats <- reactive({
@@ -676,7 +697,7 @@ server <- function(input, output, session) {
   output$num_interpretation_text <- renderUI({
     st <- num_stats()
     req(st)
-    HTML(paste0("<p>Rata-rata = <b>", round(st$mean, 3), "</b>, Median = <b>", round(st$median, 3), "</b>, SD = <b>", round(st$sd, 3), "</b>.</p>"))
+    HTML(paste0("<p>Rata-rata = <b>", round(st$mean, 3), "</b>, Median = <b>", round(st$median, 3), "</b>, SD = <b>", round(st$sd, 3), "</b>. Terdapat <b>", st$n_outliers, "</b> pencilan terdeteksi.</p>"))
   })
   
   get_num_plot_obj <- reactive({
@@ -685,25 +706,25 @@ server <- function(input, output, session) {
     vec_data <- data.frame(val = active_data()[[input$num_var_select]]) %>% na.omit()
     p_type <- input$num_plot_type
     if (p_type == "hist") {
-      p <- ggplot(vec_data, aes(x = val)) + geom_histogram(bins = input$num_bins, fill = "#1B2A4A", color = "white", alpha = 0.85)
+      p <- ggplot(vec_data, aes(x = val)) + geom_histogram(bins = input$num_bins, fill = "#142B3B", color = "white", alpha = 0.85)
     } else if (p_type == "hist_dens") {
-      p <- ggplot(vec_data, aes(x = val)) + geom_histogram(aes(y = after_stat(density)), bins = input$num_bins, fill = "#1B2A4A", color = "white", alpha = 0.7) + geom_density(color = "#008080", linewidth = 1.2)
+      p <- ggplot(vec_data, aes(x = val)) + geom_histogram(aes(y = after_stat(density)), bins = input$num_bins, fill = "#142B3B", color = "white", alpha = 0.7) + geom_density(color = "#168C8C", linewidth = 1.2)
     } else if (p_type == "density") {
-      p <- ggplot(vec_data, aes(x = val)) + geom_density(fill = "#008080", alpha = 0.5)
+      p <- ggplot(vec_data, aes(x = val)) + geom_density(fill = "#168C8C", alpha = 0.5, color = "#142B3B")
     } else if (p_type == "box") {
-      p <- ggplot(vec_data, aes(x = "", y = val)) + geom_boxplot(fill = "#D4AF37", alpha = 0.75, outlier.color = "#CD5C5C")
+      p <- ggplot(vec_data, aes(x = "", y = val)) + geom_boxplot(fill = "#E9B44C", alpha = 0.75, outlier.color = "#E87968")
     } else if (p_type == "violin") {
       p <- ggplot(vec_data, aes(x = "", y = val)) + geom_violin(fill = "#4682B4", alpha = 0.6) + geom_boxplot(width = 0.15, fill = "white", alpha = 0.8)
     } else {
-      p <- ggplot(vec_data, aes(x = val)) + stat_ecdf(geom = "step", color = "#1B2A4A", linewidth = 1.1)
+      p <- ggplot(vec_data, aes(x = val)) + stat_ecdf(geom = "step", color = "#142B3B", linewidth = 1.1)
     }
-    if (input$show_mean_line && !(p_type %in% c("box", "violin"))) p <- p + geom_vline(xintercept = st$mean, color = "#CD5C5C", linetype = "dashed", linewidth = 1)
-    if (input$show_median_line && !(p_type %in% c("box", "violin"))) p <- p + geom_vline(xintercept = st$median, color = "#008080", linetype = "solid", linewidth = 1)
+    if (input$show_mean_line && !(p_type %in% c("box", "violin"))) p <- p + geom_vline(xintercept = st$mean, color = "#E87968", linetype = "dashed", linewidth = 1)
+    if (input$show_median_line && !(p_type %in% c("box", "violin"))) p <- p + geom_vline(xintercept = st$median, color = "#168C8C", linetype = "solid", linewidth = 1)
     p + theme_minimal()
   })
   
   output$num_plot <- renderPlot({ get_num_plot_obj() })
-  output$num_plot_interpretation <- renderUI({ HTML("Garis putus-putus merah menunjukkan Mean dan garis hijau menunjukkan Median.") })
+  output$num_plot_interpretation <- renderUI({ HTML("Garis putus-putus merah (Coral) menunjukkan Mean dan garis hijau (Teal) menunjukkan Median.") })
   
   # Bivariat
   biv_type <- reactive({
@@ -763,9 +784,9 @@ server <- function(input, output, session) {
     if (tp == "num_num") {
       sub_df <- na.omit(df[, c(input$biv_var_x, input$biv_var_y)])
       r_p <- cor(sub_df[[1]], sub_df[[2]], method = "pearson")
-      HTML(paste0("<p>Korelasi Pearson <b>r = ", round(r_p, 3), "</b>.</p>"))
+      HTML(paste0("<p>Korelasi Pearson <b>r = ", round(r_p, 3), "</b> menunjukkan kekuatan hubungan linier antar kedua variabel numerik.</p>"))
     } else {
-      HTML("<p>Perbandingan statistik kelompok kategori terhadap variabel numerik.</p>")
+      HTML("<p>Perbandingan statistik deskriptif kelompok kategori terhadap variabel numerik terpilih.</p>")
     }
   })
   
@@ -777,8 +798,8 @@ server <- function(input, output, session) {
       ggplot(df, aes(x = .data[[input$biv_var_x]], fill = .data[[input$biv_var_y]])) + geom_bar(position = sub_tp) + theme_minimal()
     } else if (tp == "num_num") {
       sub_tp <- if (!is.null(input$biv_num_sub)) input$biv_num_sub else "scatter_lm"
-      p <- ggplot(df, aes(x = .data[[input$biv_var_x]], y = .data[[input$biv_var_y]])) + geom_point(color = "#1B2A4A", alpha = 0.6) + theme_minimal()
-      if (sub_tp == "scatter_lm") p <- p + geom_smooth(method = "lm", color = "#CD5C5C", se = TRUE)
+      p <- ggplot(df, aes(x = .data[[input$biv_var_x]], y = .data[[input$biv_var_y]])) + geom_point(color = "#142B3B", alpha = 0.6) + theme_minimal()
+      if (sub_tp == "scatter_lm") p <- p + geom_smooth(method = "lm", color = "#E87968", se = TRUE)
       p
     } else {
       cat_col <- if (tp == "cat_num") input$biv_var_x else input$biv_var_y
@@ -795,7 +816,7 @@ server <- function(input, output, session) {
   })
   
   output$biv_plot <- renderPlot({ get_biv_plot_obj() })
-  output$biv_plot_interpretation <- renderUI({ HTML("Visualisasi bivariat menampilkan pola hubungan antar variabel.") })
+  output$biv_plot_interpretation <- renderUI({ HTML("Visualisasi bivariat menampilkan pola interaksi antar variabel secara jelas.") })
   
   # Multivariat & Mahalanobis
   multi_maha_calc <- reactive({
@@ -827,12 +848,12 @@ server <- function(input, output, session) {
   output$multi_maha_plot <- renderPlot({
     res <- multi_maha_calc()
     df_m <- data.frame(Observasi = 1:length(res$d2), D2 = res$d2, Status = ifelse(res$d2 > res$cutoff, "Outlier", "Normal"))
-    ggplot(df_m, aes(x = Observasi, y = D2, color = Status)) + geom_point(alpha = 0.75, size = 2) + geom_hline(yintercept = res$cutoff, color = "#CD5C5C", linetype = "dashed", linewidth = 1) + scale_color_manual(values = c("Normal" = "#1B2A4A", "Outlier" = "#CD5C5C")) + theme_minimal()
+    ggplot(df_m, aes(x = Observasi, y = D2, color = Status)) + geom_point(alpha = 0.75, size = 2) + geom_hline(yintercept = res$cutoff, color = "#E87968", linetype = "dashed", linewidth = 1) + scale_color_manual(values = c("Normal" = "#142B3B", "Outlier" = "#E87968")) + theme_minimal()
   })
   
   output$multi_maha_interpret <- renderUI({
     res <- multi_maha_calc()
-    HTML(paste0("<p>Ditemukan <b>", res$n_out, "</b> pencilan multivariat berdasarkan Jarak Mahalanobis.</p>"))
+    HTML(paste0("<p>Ditemukan <b>", res$n_out, "</b> pencilan multivariat berdasarkan Jarak Mahalanobis (D^2).</p>"))
   })
   
   output$multi_vis_controls_ui <- renderUI({
@@ -863,7 +884,7 @@ server <- function(input, output, session) {
     if (vtype == "heatmap") {
       req(input$multi_num_vars)
       sub_df <- na.omit(df[, input$multi_num_vars, drop = FALSE])
-      ggcorrplot(cor(sub_df), lab = TRUE, hc.order = TRUE, type = "lower", colors = c("#CD5C5C", "#FFFFFF", "#008080")) + labs(title = "Correlation Heatmap")
+      ggcorrplot(cor(sub_df), lab = TRUE, hc.order = TRUE, type = "lower", colors = c("#E87968", "#FFFFFF", "#168C8C")) + labs(title = "Correlation Heatmap")
     } else if (vtype == "pairs") {
       req(input$multi_num_vars)
       sub_df <- na.omit(df[, input$multi_num_vars[1:min(5, length(input$multi_num_vars))], drop = FALSE])
@@ -878,9 +899,9 @@ server <- function(input, output, session) {
   })
   
   output$multi_vis_plot <- renderPlot({ get_multi_plot_obj() })
-  output$multi_vis_interpret <- renderUI({ HTML("Visualisasi multivariat memetakan interaksi simultan antar variabel.") })
+  output$multi_vis_interpret <- renderUI({ HTML("Visualisasi multivariat memetakan interaksi simultan antar variabel secara mendalam.") })
   
-  # Regresi Berganda & Uji Asumsi Klasik Lengkap (4 Jenis Uji)
+  # Regresi Berganda & Uji Asumsi Klasik
   reg_fit <- reactive({
     req(input$reg_y, input$reg_x)
     preds <- setdiff(input$reg_x, input$reg_y)
@@ -976,20 +997,20 @@ server <- function(input, output, session) {
     ptype <- input$reg_plot_type
     if (ptype == "act_pred") {
       df_p <- data.frame(Actual = mod$model[[1]], Predicted = fitted(mod))
-      ggplot(df_p, aes(x = Actual, y = Predicted)) + geom_point(color = "#1B2A4A", alpha = 0.6) + geom_abline(slope = 1, intercept = 0, color = "#CD5C5C", linetype = "dashed", linewidth = 1) + labs(title = "Actual vs Predicted Plot", x = "Aktual", y = "Prediksi") + theme_minimal()
+      ggplot(df_p, aes(x = Actual, y = Predicted)) + geom_point(color = "#142B3B", alpha = 0.6) + geom_abline(slope = 1, intercept = 0, color = "#E87968", linetype = "dashed", linewidth = 1) + labs(title = "Actual vs Predicted Plot", x = "Aktual", y = "Prediksi") + theme_minimal()
     } else if (ptype == "res_fit") {
       df_r <- data.frame(Fitted = fitted(mod), Residuals = residuals(mod))
-      ggplot(df_r, aes(x = Fitted, y = Residuals)) + geom_point(color = "#008080", alpha = 0.6) + geom_hline(yintercept = 0, color = "#CD5C5C", linetype = "dashed", linewidth = 1) + labs(title = "Residual vs Fitted Values", x = "Fitted", y = "Residual") + theme_minimal()
+      ggplot(df_r, aes(x = Fitted, y = Residuals)) + geom_point(color = "#168C8C", alpha = 0.6) + geom_hline(yintercept = 0, color = "#E87968", linetype = "dashed", linewidth = 1) + labs(title = "Residual vs Fitted Values", x = "Fitted", y = "Residual") + theme_minimal()
     } else if (ptype == "qq") {
       df_q <- data.frame(res = rstandard(mod))
-      ggplot(df_q, aes(sample = res)) + stat_qq(color = "#1B2A4A", alpha = 0.6) + stat_qq_line(color = "#CD5C5C", linewidth = 1) + labs(title = "Normal Q-Q Plot", x = "Theoretical", y = "Sample") + theme_minimal()
+      ggplot(df_q, aes(sample = res)) + stat_qq(color = "#142B3B", alpha = 0.6) + stat_qq_line(color = "#E87968", linewidth = 1) + labs(title = "Normal Q-Q Plot", x = "Theoretical", y = "Sample") + theme_minimal()
     } else if (ptype == "res_hist") {
       df_r <- data.frame(res = residuals(mod))
-      ggplot(df_r, aes(x = res)) + geom_histogram(aes(y = after_stat(density)), bins = 25, fill = "#4682B4", color = "white", alpha = 0.8) + geom_density(color = "#CD5C5C", linewidth = 1) + labs(title = "Distribusi Residual", x = "Residual", y = "Densitas") + theme_minimal()
+      ggplot(df_r, aes(x = res)) + geom_histogram(aes(y = after_stat(density)), bins = 25, fill = "#4682B4", color = "white", alpha = 0.8) + geom_density(color = "#E87968", linewidth = 1) + labs(title = "Distribusi Residual", x = "Residual", y = "Densitas") + theme_minimal()
     } else {
       s <- summary(mod)$coefficients
       df_ci <- data.frame(Var = rownames(s)[-1], Est = s[-1, 1], Lower = s[-1, 1] - 1.96 * s[-1, 2], Upper = s[-1, 1] + 1.96 * s[-1, 2])
-      ggplot(df_ci, aes(x = Var, y = Est)) + geom_point(size = 3, color = "#1B2A4A") + geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.2, color = "#008080", linewidth = 1) + geom_hline(yintercept = 0, color = "#CD5C5C", linetype = "dashed") + coord_flip() + labs(title = "Selang Kepercayaan 95% Koefisien Regresi", x = "Prediktor", y = "Estimasi") + theme_minimal()
+      ggplot(df_ci, aes(x = Var, y = Est)) + geom_point(size = 3, color = "#142B3B") + geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.2, color = "#168C8C", linewidth = 1) + geom_hline(yintercept = 0, color = "#E87968", linetype = "dashed") + coord_flip() + labs(title = "Selang Kepercayaan 95% Koefisien Regresi", x = "Prediktor", y = "Estimasi") + theme_minimal()
     }
   })
   
@@ -1023,6 +1044,41 @@ server <- function(input, output, session) {
   
   output$model_comparison_table <- renderTable({ saved_models() })
   
+  # KESIMPULAN OTOMATIS BERDASARKAN OUTPUT AKTIF DASHBOARD
+  output$dynamic_conclusion_text <- renderUI({
+    df <- active_data()
+    mod <- reg_fit()
+    s_mod <- summary(mod)
+    
+    n_obs <- nrow(df)
+    n_vars <- ncol(df)
+    r2_val <- round(s_mod$r.squared * 100, 2)
+    
+    vif_vals <- car::vif(mod)
+    if(is.matrix(vif_vals)) vif_vals <- vif_vals[, 1]
+    max_vif <- max(vif_vals, na.rm = TRUE)
+    
+    sw_test <- shapiro.test(residuals(mod))
+    bp_test <- lmtest::bptest(mod)
+    dw_test <- lmtest::dwtest(mod)
+    
+    HTML(paste0(
+      "<ul>",
+      "<li><b>1. Karakteristik Deskriptif Dataset:</b> Berdasarkan pemrosesan data aktif, analisis melibatkan <b>", n_obs, "</b> observasi dan <b>", n_vars, "</b> variabel operasional industri garmen. Sebaran data univariat menunjukkan variasi nyata pada faktor-faktor kerja seperti insentif dan waktu lembur.</li>",
+      "<li><b>2. Eksplorasi Bivariat & Multivariat:</b> Eksplorasi hubungan antar variabel mengonfirmasi adanya keterkaitan operasional yang kuat antar prediktor, serta berhasil memetakan struktur kovariansi dan pencilan multivariat melalui jarak Mahalanobis.</li>",
+      "<li><b>3. Pemodelan Regresi Linear Berganda OLS:</b> Model regresi aktif dengan variabel respons <b>", input$reg_y, "</b> menghasilkan nilai koefisien determinasi <b>R² = ", r2_val, "%</b>, yang menunjukkan kemampuan prediktor terpilih dalam menjelaskan keragaman produktivitas aktual.</li>",
+      "<li><b>4. Evaluasi Uji Asumsi Klasik:</b> Model telah diuji secara empiris melalui dashboard dengan hasil: ",
+      "<ul>",
+      "<li><b>Multikolinearitas:</b> Nilai VIF maksimum sebesar <b>", round(max_vif, 2), "</b> (", ifelse(max_vif < 10, "Aman, VIF < 10", "Tinggi"), ").</li>",
+      "<li><b>Normalitas Residual:</b> Uji Shapiro-Wilk menghasilkan p-value = <b>", format.pval(sw_test$p.value, digits = 4), "</b> (", ifelse(sw_test$p.value > 0.05, "Residual berdistribusi normal", "Tidak normal"), ").</li>",
+      "<li><b>Homoskedastisitas:</b> Uji Breusch-Pagan menghasilkan p-value = <b>", format.pval(bp_test$p.value, digits = 4), "</b> (", ifelse(bp_test$p.value > 0.05, "Ragam galat homogen", "Heteroskedastis"), ").</li>",
+      "<li><b>Independensi / Autokorelasi:</b> Uji Durbin-Watson menghasilkan p-value = <b>", format.pval(dw_test$p.value, digits = 4), "</b> (", ifelse(dw_test$p.value > 0.05, "Tidak ada autokorelasi", "Terindikasi autokorelasi"), ").</li>",
+      "</ul>",
+      "</li>",
+      "</ul>"
+    ))
+  })
+  
   # Download Handlers
   output$download_cat_plot <- downloadHandler(filename = function() { paste0("univariat_kategorik_", Sys.Date(), ".png") }, content = function(file) { ggsave(file, plot = get_cat_plot_obj(), device = "png", width = 8, height = 5) })
   output$download_num_plot <- downloadHandler(filename = function() { paste0("univariat_numerik_", Sys.Date(), ".png") }, content = function(file) { ggsave(file, plot = get_num_plot_obj(), device = "png", width = 8, height = 5) })
@@ -1035,4 +1091,3 @@ server <- function(input, output, session) {
 # 5. MENJALANKAN APLIKASI SHINY
 # ==============================================================================
 shinyApp(ui = ui, server = server)
-
